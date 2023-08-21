@@ -3,36 +3,21 @@ import React from 'react';
 import Button from '../Button';
 
 import styles from './ToastPlayground.module.css';
-import Toast from '../Toast/Toast';
-import ToastShelf from '../ToastShelf/ToastShelf';
+import { ToastContext } from '../ToastProvider/ToastProvider';
 
 const VARIANT_OPTIONS = ['notice', 'warning', 'success', 'error'];
 
 function ToastPlayground() {
-  const [toasts, setToasts] = React.useState([]);
-  const [formValue, setFormValue] = React.useState({
-    message: '',
-    variant: VARIANT_OPTIONS[0],
-  });
+  const [message, setMessage] = React.useState('');
+  const [variant, setVariant] = React.useState(VARIANT_OPTIONS[0]);
+  const { createToast } = React.useContext(ToastContext);
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    const newToasts = [
-      ...toasts,
-      {
-        id: crypto.randomUUID(),
-        ...formValue,
-      },
-    ];
-
-    setToasts(newToasts);
-    setFormValue({ variant: VARIANT_OPTIONS[0], message: '' });
-  }
-
-  function handleDismiss(id) {
-    const newToasts = toasts.filter((toast) => toast.id !== id);
-    setToasts(newToasts);
+    createToast(message, variant);
+    setMessage('');
+    setVariant(VARIANT_OPTIONS[0]);
   }
 
   return (
@@ -41,8 +26,6 @@ function ToastPlayground() {
         <img alt="Cute toast mascot" src="/toast.png" />
         <h1>Toast Playground</h1>
       </header>
-
-      <ToastShelf toasts={toasts} handleDismiss={handleDismiss} />
 
       <form className={styles.controlsWrapper} onSubmit={handleSubmit}>
         <div className={styles.row}>
@@ -57,9 +40,9 @@ function ToastPlayground() {
             <textarea
               id="message"
               className={styles.messageInput}
-              value={formValue.message}
+              value={message}
               onChange={(e) => {
-                setFormValue({ ...formValue, message: e.target.value });
+                setMessage(e.target.value);
               }}
             />
           </div>
@@ -76,9 +59,9 @@ function ToastPlayground() {
                     type="radio"
                     name="variant"
                     value={option}
-                    checked={option === formValue.variant}
+                    checked={option === variant}
                     onChange={(e) => {
-                      setFormValue({ ...formValue, variant: e.target.value });
+                      setVariant(e.target.value);
                     }}
                   />
                   {option}
